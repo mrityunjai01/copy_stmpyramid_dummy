@@ -15,7 +15,7 @@ def SHTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
     M = len(X)
     xa = xa if xa is not None else np.zeros(M)
     xb = xb if xb is not None else np.zeros(M)
-    constrain = M if constrain is 'lax' else 1
+    constrain = M if constrain == 'lax' else 1
     rank = 3 if rank is None else rank
 
     data_fact = [rank_R_decomp(X, rank) for X in X]
@@ -124,7 +124,7 @@ def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
     xa = xa if xa is not None else np.zeros(M)
     xb = xb if xb is not None else np.zeros(M)
     rank = 3 if rank is None else rank
-    constrain = M if constrain is 'lax' else 1
+    constrain = M if constrain == 'lax' else 1
     data_fact = [rank_R_decomp(X, rank) for X in X]
     K = make_kernel(data_fact)
 

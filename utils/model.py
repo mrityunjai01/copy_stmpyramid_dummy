@@ -33,13 +33,13 @@ class Node:
         
     def insert(self,neuron_type, weight=0, bias=0, w=0):     
         if neuron_type == 'A':
-            self.A = Node(self.dim)
+            self.A = Node(self.dim, self.solver, self.C, self.rank, self.xa, self.xb, self.constrain, self.wnorm)
             self.A.weight = weight
             self.A.bias = bias
             self.A.height = self.height+1
             return self.A
         else:
-            self.B = Node(self.dim)
+            self.B = Node(self.dim, self.solver, self.C, self.rank, self.xa, self.xb, self.constrain, self.wnorm)
             self.B.weight = weight
             self.B.bias = bias
             self.B.height = self.height+1
