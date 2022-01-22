@@ -11,7 +11,7 @@ def bin_mnist(class1 = 3, class2 = 8, totalsamp = None):
     y2 = (yALL == class2)
     ytot = (y0 + y2).reshape(-1)
     Xtrain = XALL[ytot]
-    ytrain = np.where(yALL[ytot] == class1, -1, 1)
+    ytrain = np.where(yALL[ytot] == class1, -1, 1).reshape(-1,1)
     return Xtrain, ytrain
 
 def normer(Xtrain):

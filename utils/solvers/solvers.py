@@ -1,9 +1,9 @@
 # TODO give option to constrain the weights from min to max OR 0 to max OR -max to max etc
 # TODO ask if the max/min of the constraints is AFTER or BEFORE decomposition
 # TODO code up primal form of SHTM (is the 'w' on the decomposed matrices of X or on the reconstructed X after the outerproduct summation)
-import imp
 from utils.solvers.tensor import make_kernel, rank_R_decomp, construct_W_from_mat
 from utils.solvers.vector import inner_prod, construct_W_from_vec
+from utils.solvers.centroid import centroid
 import tensorly as tl
 import cvxpy as cp
 import numpy as np
@@ -45,7 +45,7 @@ def SHTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
     
     return W, b.value, wa.value, wb.value
 
-def STM(X, y, C = 1.0, xa = None, xb = None, wnorm = 'L1'):
+def STM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1'):
     M = len(X)
     xa = xa if xa is not None else np.zeros(M)
     xb = xb if xb is not None else np.zeros(M)
@@ -79,7 +79,7 @@ def STM(X, y, C = 1.0, xa = None, xb = None, wnorm = 'L1'):
     return W, b.value, wa.value, wb.value
 
 
-def MCM(X, y, C = 1.0, xa = None, xb = None):
+def MCM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1'):
     M = len(X)
     xa = xa if xa is not None else np.zeros(M)
     xb = xb if xb is not None else np.zeros(M)
@@ -115,7 +115,7 @@ def MCM(X, y, C = 1.0, xa = None, xb = None):
 
 
 
-def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax'):
+def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1'):
     '''
     If solver doesn't work, then hyperparameters chosen are faulty.
     '''
@@ -150,3 +150,13 @@ def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax'):
     W = construct_W_from_mat(data_fact, l.value, 1e-9)
     return W, b.value, wa.value, wb.value
 
+
+
+def getHyperPlaneFromTwoPoints(xp, xn):
+    x1 = centroid(xp)
+    x2 = centroid(xn)
+    d = x1.shape[0]
+    w = (2) * (x2 - x1) / (np.linalg.norm(x1 - x2) ** 2)
+    #b = - np.dot(w , (0.5 * (x1 + x2)))
+    b = -1 * inner_prod(w,(0.5 * (x1 + x2)))  
+    return w, b
