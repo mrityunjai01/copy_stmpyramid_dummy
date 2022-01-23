@@ -29,6 +29,8 @@ if __name__ == "__main__":
     
     xa = None
     xb = None
+    if len(Xtrain.shape) == 2:
+        Xtrain = Xtrain.reshape((Xtrain.shape[0],Xtrain.shape[1],1))
     crossvalidator(Xtrain, ytrain, solver, k, onlyonce, h, C, rank, xa, xb, constrain, wnorm)
 
 
