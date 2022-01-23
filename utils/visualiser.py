@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from constants import visuals_folder, visualiser
 import numpy as np
 from random import seed
 np.random.seed(1)
