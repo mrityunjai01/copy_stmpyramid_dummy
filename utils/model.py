@@ -107,11 +107,11 @@ class Node:
         if(self==None):
             return   
         if(self.A!=None):
-            self.A.fine_tune_weights(self.C, self.rank, self.xa, self.xb, self.constrain, self.wnorm)  
+            self.A.fine_tune_weights()  
             xA = self.A.forward(X)
             xA=np.reshape(xA,(xA.shape[0],1))
         if(self.B!=None):
-            self.B.fine_tune_weights(self.C, self.rank, self.xa, self.xb, self.constrain, self.wnorm) 
+            self.B.fine_tune_weights() 
             xB = self.B.forward(X)
             xB=np.reshape(xB,(xB.shape[0],1))
         
@@ -126,7 +126,7 @@ class Node:
         self.update_weights_and_bias(weight, bias, wA, wB)
 
 
-    def recursive(self, X,labels, h):
+    def recursive(self, X, labels, h):
         self.X = X
         self.labels = labels
         labels=labels.copy()
@@ -175,7 +175,7 @@ class Node:
             labels[C4]=-1
             y_new=np.take(labels,np.hstack((C1,C3,C4)),axis=0)
             NodeA = self.insert('A')
-            NodeA.recursive(X_new, y_new, h, self.C, self.rank, self.xa, self.xb, self.constrain, self.wnorm)
+            NodeA.recursive(X_new, y_new, h)
         if(len(C4) != 0):
             X_new=np.take(X,np.hstack((C2,C3,C4)),axis=0)
             labels[C2]=-1
@@ -183,4 +183,4 @@ class Node:
             labels[C4]=1
             y_new=np.take(labels,np.hstack((C2,C3,C4)),axis=0)
             NodeB = self.insert('B')
-            NodeB.recursive(X_new, y_new, h, self.C, self.rank, self.xa, self.xb, self.constrain, self.wnorm)
+            NodeB.recursive(X_new, y_new, h)

@@ -1,8 +1,10 @@
 # TODO give option to constrain the weights from min to max OR 0 to max OR -max to max etc
 # TODO ask if the max/min of the constraints is AFTER or BEFORE decomposition
 # TODO code up primal form of SHTM (is the 'w' on the decomposed matrices of X or on the reconstructed X after the outerproduct summation)
+# TODO SHTM is not working (error that expressions with dimensions more than 2 are not supported)
+# TODO MCTM is giving mediocre results and doesn't get better with height or C so maybe some bug
 from utils.solvers.tensor import make_kernel, rank_R_decomp, construct_W_from_mat
-from utils.solvers.vector import inner_prod, construct_W_from_vec
+from utils.solvers.vector import inner_prod, construct_W_from_vec, inner_prod_cp
 from utils.solvers.centroid import centroid
 import tensorly as tl
 import cvxpy as cp
@@ -18,7 +20,7 @@ def SHTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
     constrain = M if constrain == 'lax' else 1
     rank = 3 if rank is None else rank
 
-    data_fact = [rank_R_decomp(X, rank) for X in X]
+    data_fact = [rank_R_decomp(x, rank) for x in X]
     K = make_kernel(data_fact)
     
     l = cp.Variable(M)
@@ -36,7 +38,7 @@ def SHTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
     constraints.append(l <= 1/M*constrain)
     constraints.append(q >= 0)
     for i in range(M):
-        constraints.append(y[i]*(cp.sum(l*K[:, i]) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1)
+        constraints.append(y[i]*(cp.sum(cp.multiply(l,K[:, i])) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1)
     
     problem = cp.Problem(cp.Minimize(objfun),constraints)
     problem.solve()
@@ -69,7 +71,7 @@ def STM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm 
     constraints.append(w >= mines)
     constraints.append(q >= 0)
     for i in range(M):
-        constraints.append(y[i]*(inner_prod(w,X[i].reshape(-1)) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1.0)
+        constraints.append(y[i]*(inner_prod_cp(w,X[i].reshape(-1)) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1.0)
     
     problem = cp.Problem(cp.Minimize(objfun),constraints)
     problem.solve()
@@ -100,8 +102,8 @@ def MCM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm 
     constraints.append(w >= mines)
     constraints.append(q >= 0)
     for i in range(M):
-        constraints.append(y[i]*(inner_prod(w,X[i].reshape(-1)) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1.0)
-        constraints.append(y[i]*(inner_prod(w,X[i].reshape(-1)) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] <= h)
+        constraints.append(y[i]*(inner_prod_cp(w,X[i].reshape(-1)) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1.0)
+        constraints.append(y[i]*(inner_prod_cp(w,X[i].reshape(-1)) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] <= h)
 
     
     problem = cp.Problem(cp.Minimize(objfun),constraints)
@@ -125,7 +127,7 @@ def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
     xb = xb if xb is not None else np.zeros(M)
     rank = 3 if rank is None else rank
     constrain = M if constrain == 'lax' else 1
-    data_fact = [rank_R_decomp(X, rank) for X in X]
+    data_fact = [rank_R_decomp(x, rank) for x in X]
     K = make_kernel(data_fact)
 
     h = cp.Variable()
@@ -139,8 +141,8 @@ def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
 
     constraints = []
     for i in range(M):
-        constraints.append(h >= y[i]*(cp.sum(l*K[:, i]) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i])
-        constraints.append(y[i]*(cp.sum(l*K[:, i]) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1)
+        constraints.append(h >= y[i]*(cp.sum(cp.multiply(l,K[:, i])) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i])
+        constraints.append(y[i]*(cp.sum(cp.multiply(l,K[:, i])) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1)
     constraints.append(q >= 0)
     constraints.append(l >= -1/M*constrain)
     constraints.append(l <= 1/M*constrain)
