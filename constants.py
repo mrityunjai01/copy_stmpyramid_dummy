@@ -22,11 +22,12 @@ normalised = False                  # normalised data? {True, False}
 solver = 'MCM'                      # Current options are STM, SHTM, MCM, MCTM
 k = 5                               # positive int
 onlyonce = True                     # {True, False}
-h = 2                               # non negative int
+h = 6                               # non negative int
 C = 100                             # positive float
 rank = 3                            # positive int
 constrain = 'lax'                   # lax constrain on W or not {'lax', #ANYTHING} using MCM / MCTM
 wnorm = 'L1'                        # {'L1', 'L2'} for L1 or L2 norm using STM / SHTM
 
-visualiser = False
+visualiser = True
 visuals_folder = '/path/to/folder'  # folder path to save files to
+
