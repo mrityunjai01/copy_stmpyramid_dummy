@@ -5,14 +5,14 @@ from random import seed
 np.random.seed(1)
 seed(1)
 
-def rank_R_decomp(X, rank=3):
+def rank_R_decomp(X, rank = 3):
     X_t = tl.tensor(X)
     _, factors = parafac(X_t, int(rank))
     fact_np = [tl.to_numpy(f) for f in factors]
     return fact_np
 
 
-def inner_prod_decomp(Ai, Aj, gamma = 10):
+def inner_prod_decomp(Ai, Aj):
     s = 0.0
     R = Ai[0].shape[1]
     for p in range(R):

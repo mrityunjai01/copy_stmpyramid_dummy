@@ -3,12 +3,9 @@
 # TODO code up primal form of SHTM (is the 'w' on the decomposed matrices of X or on the reconstructed X after the outerproduct summation)
 # TODO SHTM is not working (error that expressions with dimensions more than 2 are not supported)
 # TODO MCTM is giving mediocre results and doesn't get better with height or C so maybe some bug
-from operator import truediv
-from re import I
 from utils.solvers.tensor import make_kernel, rank_R_decomp, construct_W_from_mat
 from utils.solvers.vector import inner_prod, construct_W_from_vec, inner_prod_cp
 from utils.solvers.centroid import centroid
-import tensorly as tl
 import cvxpy as cp
 import numpy as np
 from random import seed
@@ -161,6 +158,5 @@ def getHyperPlaneFromTwoPoints(xp, xn):
     x2 = centroid(xn)
     d = x1.shape[0]
     w = (2) * (x2 - x1) / (np.linalg.norm(x1 - x2) ** 2)
-    #b = - np.dot(w , (0.5 * (x1 + x2)))
     b = -1 * inner_prod(w,(0.5 * (x1 + x2)))  
     return w, b

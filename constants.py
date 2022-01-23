@@ -11,7 +11,7 @@ if dataset == 'mnist':
 if dataset == 'cifar10':
     class1 = 3                      # {0,1,2,3,4,5,6,7,8,9}
     class2 = 8                      # {0,1,2,3,4,5,6,7,8,9}
-    totalsamp = 500                 # int within [50,10000] or None (for max)
+    totalsamp = 2000                # int within [50,10000] or None (for max)
 
 
 # For custom
@@ -19,7 +19,7 @@ Xtrain_file = '/path/to/data.npy'   # (Xtrain.shape[0] = total samples and Xtrai
 ytrain_file = '/path/to/label.npy'  # (ytrain.shape = (Total Samples, 1) and ytrain is numpy array, no other constraint)
 
 normalised = False                  # normalised data? {True, False}
-solver = 'MCM'                     # Current options are STM, SHTM, MCM, MCTM
+solver = 'MCM'                      # Current options are STM, SHTM, MCM, MCTM
 k = 5                               # positive int
 onlyonce = True                     # {True, False}
 h = 2                               # non negative int

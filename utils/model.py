@@ -118,10 +118,9 @@ class Node:
         weight, bias, wA, wB = self.solver(X, l, self.C, self.rank, self.xa, self.xb, self.constrain, self.wnorm)
         
         print(self.height)
-        # TODO fix this for RGB as well (not just greyscale) -> maybe by converting to greyscale only
-        visualise(weight,(X.shape[1],X.shape[2]))
-        visualise_pos(weight,(X.shape[1],X.shape[2]))
-        visualise_neg(weight,(X.shape[1],X.shape[2])) 
+        visualise(weight,X.shape[1:])
+        visualise_pos(weight,X.shape[1:])
+        visualise_neg(weight,X.shape[1:]) 
         
         self.update_weights_and_bias(weight, bias, wA, wB)
 
