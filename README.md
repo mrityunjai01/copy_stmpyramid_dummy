@@ -15,3 +15,9 @@ Please ensure all libraries have been downloaded before running the code.
 ### Known Bugs:
 1. MCTM giving incorrect results.
 2. SHTM giving error.
+
+### TODO:
+1. More datasets in loader
+2. Better cross validation pipeline with more information
+3. Saving the images and data to another folder
+4. More solvers (and adding the hyperparams in the pipeline)
