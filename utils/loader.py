@@ -10,12 +10,12 @@ seed(1)
 def bin_mnist(class1 = 3, class2 = 8, totalsamp = None):
     XALL = mnist.train_images()[:totalsamp]/255
     yALL = mnist.train_labels().reshape(-1,1)[:totalsamp].astype(np.int8)
-    y0 = (yALL == class1)
-    y2 = (yALL == class2)
-    ytot = (y0 + y2).reshape(-1)
-    Xtrain = XALL[ytot]
-    ytrain = np.where(yALL[ytot] == class1, -1, 1).reshape(-1,1)
-    return Xtrain, ytrain
+    #y0 = (yALL == class1)
+    #y2 = (yALL == class2)
+    #ytot = (y0 + y2).reshape(-1)
+    #Xtrain = XALL[ytot]
+    #ytrain = np.where(yALL[ytot] == class1, -1, 1).reshape(-1,1)
+    return XALL, yALL
 
 def bin_CIFAR(class1 = 3, class2 = 8, totalsamp = None):
     transform = transforms.Compose([transforms.ToTensor(),])
