@@ -19,7 +19,8 @@ if __name__ == "__main__":
     
     if dataset == 'mnist':
         Xtrain, ytrain = load.bin_mnist(class1, class2, totalsamp)
-    
+    if dataset == 'cifar10':
+        Xtrain, ytrain = load.bin_CIFAR(class1, class2, totalsamp)
     if dataset == 'custom':
         Xtrain = np.load(Xtrain_file)
         ytrain = np.load(ytrain_file)

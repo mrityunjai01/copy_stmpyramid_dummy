@@ -6,6 +6,8 @@ np.random.seed(1)
 seed(1)
 
 def visualise(w,shape):
+    if visualiser == False:
+        return
     wsq=w.copy()
     wsq = (wsq - np.min(wsq)) / (np.max(wsq) - np.min(wsq))
     wsq=np.reshape(wsq,shape)
@@ -14,7 +16,8 @@ def visualise(w,shape):
 
 
 def visualise_pos(w,shape):
-    
+    if visualiser == False:
+        return
     wsq=w.copy()
     wsq=np.maximum(wsq, 0)
     wsq = (wsq - np.min(wsq)) / (np.max(wsq) - np.min(wsq))
@@ -23,7 +26,8 @@ def visualise_pos(w,shape):
     plt.show()
 
 def visualise_neg(w,shape):
-    
+    if visualiser == False:
+        return
     wsq=w.copy()
     wsq=np.minimum(wsq, 0)
     wsq = (wsq - np.min(wsq)) / (np.max(wsq) - np.min(wsq))

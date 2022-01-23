@@ -29,7 +29,6 @@ def make_kernel(data_decomp):
         for j in range(i+1):
             K[i, j] = inner_prod_decomp(data_decomp[i], data_decomp[j])
             K[j, i] = K[i, j]
-    
     return K
 
 def construct_W_from_mat(data_decomp, l, eps=1e-100):
@@ -38,5 +37,4 @@ def construct_W_from_mat(data_decomp, l, eps=1e-100):
     for i, flag in enumerate((np.abs(l) > eps)):
         if flag:
             W += l[i]*tl.cp_to_tensor((np.ones(R), data_decomp[i]))
-    
     return tl.to_numpy(W)

@@ -3,6 +3,8 @@
 # TODO code up primal form of SHTM (is the 'w' on the decomposed matrices of X or on the reconstructed X after the outerproduct summation)
 # TODO SHTM is not working (error that expressions with dimensions more than 2 are not supported)
 # TODO MCTM is giving mediocre results and doesn't get better with height or C so maybe some bug
+from operator import truediv
+from re import I
 from utils.solvers.tensor import make_kernel, rank_R_decomp, construct_W_from_mat
 from utils.solvers.vector import inner_prod, construct_W_from_vec, inner_prod_cp
 from utils.solvers.centroid import centroid
