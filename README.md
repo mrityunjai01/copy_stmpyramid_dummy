@@ -21,3 +21,4 @@ Please ensure all libraries have been downloaded before running the code.
 3. In case any grid search hyperparameter gives error, please handle that with 'try except block' 
 4. Saving the images and data to another folder (better visualisation needs to be added especially for RGB images)
 5. More solvers (and adding the hyperparams in the pipeline) (Logistic regressor needs to be added at the least)
+6. Dimension reduction for all data happens earlier and not at every iteration. (kernel still needs to be made at every iteration though)
