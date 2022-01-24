@@ -6,6 +6,7 @@
 from utils.solvers.tensor import make_kernel, rank_R_decomp, construct_W_from_mat
 from utils.solvers.vector import inner_prod, construct_W_from_vec, inner_prod_cp
 from utils.solvers.centroid import centroid
+from constants import wconst
 import cvxpy as cp
 import numpy as np
 from random import seed
@@ -33,8 +34,12 @@ def SHTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
     elif wnorm == 'L2':
         objfun += 1/2*(cp.sum(cp.square(l@X)) + cp.square(wa) + cp.square(wb))
     constraints = []
-    constraints.append(l >= -1/M*constrain)
-    constraints.append(l <= 1/M*constrain)
+    if wconst == 'maxmax':
+        constraints.append(l >= -1/M*constrain)
+        constraints.append(l <= 1/M*constrain)
+    elif wconst == 'minmax':
+        constraints.append(l >= 0)
+        constraints.append(l <= 1/M*constrain)
     constraints.append(q >= 0)
     for i in range(M):
         constraints.append(y[i]*(cp.sum(cp.multiply(l,K[:, i])) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1)
@@ -66,8 +71,13 @@ def STM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm 
     constraints = []
     maxes = np.max(X, axis = 0).reshape(-1)
     mines = np.min(X, axis = 0).reshape(-1)
-    constraints.append(w <= maxes)
-    constraints.append(w >= mines)
+    if wconst == 'maxmax':
+        abmaxes = np.maximum(np.abs(maxes),np.abs(mines))
+        constraints.append(w <= abmaxes)
+        constraints.append(w >= -abmaxes)
+    elif wconst == 'minmax':
+        constraints.append(w <= maxes)
+        constraints.append(w >= mines)
     constraints.append(q >= 0)
     for i in range(M):
         constraints.append(y[i]*(inner_prod_cp(w,X[i].reshape(-1)) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1.0)
@@ -97,8 +107,13 @@ def MCM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm 
     constraints = []
     maxes = np.max(X, axis = 0).reshape(-1)
     mines = np.min(X, axis = 0).reshape(-1)
-    constraints.append(w <= maxes)
-    constraints.append(w >= mines)
+    if wconst == 'maxmax':
+        abmaxes = np.maximum(np.abs(maxes),np.abs(mines))
+        constraints.append(w <= abmaxes)
+        constraints.append(w >= -abmaxes)
+    elif wconst == 'minmax':
+        constraints.append(w <= maxes)
+        constraints.append(w >= mines)
     constraints.append(q >= 0)
     for i in range(M):
         constraints.append(y[i]*(inner_prod_cp(w,X[i].reshape(-1)) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1.0)
@@ -143,8 +158,12 @@ def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
         constraints.append(h >= y[i]*(cp.sum(cp.multiply(l,K[:, i])) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i])
         constraints.append(y[i]*(cp.sum(cp.multiply(l,K[:, i])) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1)
     constraints.append(q >= 0)
-    constraints.append(l >= -1/M*constrain)
-    constraints.append(l <= 1/M*constrain)
+    if wconst == 'maxmax':
+        constraints.append(l >= -1/M*constrain)
+        constraints.append(l <= 1/M*constrain)
+    elif wconst == 'minmax':
+        constraints.append(l >= 0)
+        constraints.append(l <= 1/M*constrain)
 
     prob = cp.Problem(cp.Minimize(obj), constraints)
     prob.solve()
@@ -156,7 +175,6 @@ def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
 def getHyperPlaneFromTwoPoints(xp, xn):
     x1 = centroid(xp)
     x2 = centroid(xn)
-    d = x1.shape[0]
     w = (2) * (x2 - x1) / (np.linalg.norm(x1 - x2) ** 2)
     b = -1 * inner_prod(w,(0.5 * (x1 + x2)))  
     return w, b
