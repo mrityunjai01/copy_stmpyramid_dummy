@@ -19,6 +19,5 @@ Please ensure all libraries have been downloaded before running the code.
 1. More datasets in loader
 2. Better cross validation / grid search pipeline with more information
 3. In case any grid search hyperparameter gives error, please handle that with 'try except block' 
-4. Saving the images and data to another folder
-5. More solvers (and adding the hyperparams in the pipeline)
-6. Method in constants for diff weight constraints
+4. Saving the images and data to another folder (better visualisation needs to be added especially for RGB images)
+5. More solvers (and adding the hyperparams in the pipeline) (Logistic regressor needs to be added at the least)
