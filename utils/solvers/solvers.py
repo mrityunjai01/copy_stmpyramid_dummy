@@ -177,4 +177,4 @@ def getHyperPlaneFromTwoPoints(xp, xn):
     x2 = centroid(xn)
     w = (2) * (x2 - x1) / (np.linalg.norm(x1 - x2) ** 2)
     b = -1 * inner_prod(w,(0.5 * (x1 + x2)))  
-    return w, b
+    return -w, -b
