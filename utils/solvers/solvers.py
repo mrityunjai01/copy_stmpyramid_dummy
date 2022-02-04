@@ -6,14 +6,13 @@
 from utils.solvers.tensor import make_kernel, rank_R_decomp, construct_W_from_mat
 from utils.solvers.vector import inner_prod, construct_W_from_vec, inner_prod_cp
 from utils.solvers.centroid import centroid
-from constants import wconst
 import cvxpy as cp
 import numpy as np
 from random import seed
 np.random.seed(1)
 seed(1)
 
-def SHTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1'):
+def SHTM(X,y,C = 1.0,rank = 3,xa = None,xb = None,constrain = 'lax',wnorm = 'L1',wconst='maxmax'):
     M = len(X)
     xa = xa if xa is not None else np.zeros(M)
     xb = xb if xb is not None else np.zeros(M)
@@ -51,7 +50,7 @@ def SHTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
     
     return W, b.value, wa.value, wb.value
 
-def STM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1'):
+def STM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1',wconst = 'maxmax'):
     M = len(X)
     xa = xa if xa is not None else np.zeros(M)
     xb = xb if xb is not None else np.zeros(M)
@@ -81,16 +80,16 @@ def STM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm 
     constraints.append(q >= 0)
     for i in range(M):
         constraints.append(y[i]*(inner_prod_cp(w,X[i].reshape(-1)) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1.0)
-    
+    constraints.append(wa >= 0)
+    constraints.append(wb <= 0)
     problem = cp.Problem(cp.Minimize(objfun),constraints)
     problem.solve()
     
     W = construct_W_from_vec(w.value, wshape)
-    
     return W, b.value, wa.value, wb.value
 
 
-def MCM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1'):
+def MCM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1',wconst = 'maxmax'):
     M = len(X)
     xa = xa if xa is not None else np.zeros(M)
     xb = xb if xb is not None else np.zeros(M)
@@ -131,7 +130,7 @@ def MCM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm 
 
 
 
-def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1'):
+def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1',wconst = 'maxmax'):
     '''
     If solver doesn't work, then hyperparameters chosen are faulty.
     '''
