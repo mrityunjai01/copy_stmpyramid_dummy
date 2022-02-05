@@ -9,8 +9,7 @@ def visualise(w,shape):
     if visualiser == False:
         return
     wsq=w.copy()
-    if normalised == False:
-        wsq = (wsq - np.min(wsq)) / (np.max(wsq) - np.min(wsq))
+    wsq = (wsq - np.min(wsq)) / (np.max(wsq) - np.min(wsq))
     wsq=np.reshape(wsq,shape)
     '''if len(shape) == 3:
         wsq = np.average(wsq, axis = -1)'''
@@ -23,8 +22,7 @@ def visualise_pos(w,shape):
         return
     wsq=w.copy()
     wsq=np.maximum(wsq, 0)
-    if normalised == False:
-        wsq = (wsq - np.min(wsq)) / (np.max(wsq) - np.min(wsq))
+    wsq = (wsq - np.min(wsq)) / (np.max(wsq) - np.min(wsq))
     wsq=np.reshape(wsq,shape)
     '''if len(shape) == 3:
         wsq = np.average(wsq, axis = -1)'''
@@ -36,9 +34,9 @@ def visualise_neg(w,shape):
         return
     wsq=w.copy()
     wsq=np.minimum(wsq, 0)
-    if normalised == False:
-        wsq = (wsq - np.min(wsq)) / (np.max(wsq) - np.min(wsq))
+    wsq = (wsq - np.min(wsq)) / (np.max(wsq) - np.min(wsq))
     wsq=np.reshape(wsq,shape)
+    wsq=-wsq
     '''if len(shape) == 3:
         wsq = np.average(wsq, axis = -1)'''
     plt.imshow(wsq, interpolation='nearest',cmap='gray')
