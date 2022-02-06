@@ -14,6 +14,8 @@ Please ensure that these libraries have been downloaded and installed before run
 - cvxpy
 - tensorly
 - torchvision
+- tensorflow
+- keras
 
 
 ### Request:
