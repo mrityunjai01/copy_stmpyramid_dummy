@@ -32,3 +32,4 @@ Please ensure that these libraries have been downloaded and installed before run
 4. Saving the images and data to another folder (better visualisation needs to be added especially for RGB images)
 5. More solvers (and adding the hyperparams in the pipeline) (Logistic regressor needs to be added at the least)
 6. Dimension reduction for all data happens earlier and not at every iteration. (kernel still needs to be made at every iteration though)
+7. Instead of using a SGD_Solver, just use a max iter flag on the QP solver. (This might be inaccurate? or slow? check implementation documentation to confirm)
