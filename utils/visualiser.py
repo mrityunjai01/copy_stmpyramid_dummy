@@ -7,6 +7,7 @@ def visualise(w):
     wsq=w.copy()
     wsq = (wsq-np.min(wsq))/(np.max(wsq)-np.min(wsq))
     return wsq
+    
 
 
 def visualise_pos(w):
@@ -15,9 +16,10 @@ def visualise_pos(w):
     wsq = (wsq-np.min(wsq))/(np.max(wsq)-np.min(wsq))
     return wsq
 
+
 def visualise_neg(w):
     wsq=w.copy()
     wsq=np.minimum(wsq, 0)
     wsq = (wsq-np.min(wsq))/(np.max(wsq)-np.min(wsq))
-
     return wsq
+
