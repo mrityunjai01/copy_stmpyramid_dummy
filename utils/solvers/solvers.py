@@ -7,9 +7,7 @@ from .tensor import make_kernel,rank_R_decomp,construct_W_from_mat
 from .vector import inner_prod,construct_W_from_vec,inner_prod_cp
 from .centroid import centroid
 from sklearn.utils import shuffle
-#from ..constants import verbose_sgd,verbose_solver
-verbose_sgd = False
-verbose_solver = False
+from ..constants import verbose_sgd,verbose_solver
 
 import cvxpy as cp
 import numpy as np
