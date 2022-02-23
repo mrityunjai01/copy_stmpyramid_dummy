@@ -1,12 +1,12 @@
-from solvers.vector import inner_prod
-from solvers.solvers import getHyperPlaneFromTwoPoints
-from accuracy import accuracy as accuracy_
-from solvers.tensor import construct_W_from_decomp
+from utils.solvers.vector import inner_prod
+from utils.solvers.solvers import getHyperPlaneFromTwoPoints
+from utils.accuracy import accuracy as accuracy_
+from utils.solvers.tensor import construct_W_from_decomp
 
 import numpy as np
 from random import seed
 import os
-import solvers.solvers as solvers
+import utils.solvers.solvers as solvers
 import pickle
 np.random.seed(1)
 seed(1)
