@@ -38,3 +38,26 @@ def construct_W_from_mat(data_decomp, l, eps=1e-100):
         if flag:
             W += l[i]*tl.cp_to_tensor((np.ones(R), data_decomp[i]))
     return tl.to_numpy(W)
+
+
+def data_decomp(x, rank = 3):
+    xnew = np.array([])
+    for X in x:
+        X_t = tl.tensor(X)
+        _, factors = parafac(X_t, int(rank))
+        facts = []
+        facts.extend(tl.to_numpy(f) for f in factors)
+        Xnew = np.vstack(facts)
+        Xnew = Xnew.reshape((1,*Xnew.shape))
+        if len(xnew) == 0:
+            xnew = Xnew
+        else:
+            xnew = np.vstack([xnew,Xnew])
+    return xnew , X.shape
+
+def construct_W_from_decomp(W_decomp, shape):
+    R = W_decomp.shape[1]
+    shape = [0] + list(shape)
+    facts = [W_decomp[shape[i-1]:shape[i-1]+shape[i]] for i in range(1,len(shape))]
+    W = tl.cp_to_tensor((np.ones(R),facts))
+    return W

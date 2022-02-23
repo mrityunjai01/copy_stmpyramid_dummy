@@ -1,5 +1,5 @@
 # TODO make a way to save output data rather than print it out (especially for images)
-dataset = 'cifar10'                  # {mnist, cifar10, custom}
+dataset = 'mnist'                  # {mnist, cifar10, custom}
 
 # For mnist 
 if dataset == 'mnist':
@@ -17,18 +17,29 @@ if dataset == 'cifar10':
 # For custom
 Xtrain_file = '/path/to/data.npy'   # (Xtrain.shape[0] = total samples and Xtrain is numpy array, no other constraint)
 ytrain_file = '/path/to/label.npy'  # (ytrain.shape = (Total Samples, 1) and ytrain is numpy array, no other constraint)
-
-wconst = 'maxmax'                   # {'minmax', 'maxmax', #ANYTHING} #ANYTHING for no constraint 
 normalised = False                  # normalised data? {True, False}
-solver = 'MCTM'                      # Current options are STM, SHTM, MCM, MCTM
-k = 5                               # positive int
-onlyonce = True                     # {True, False}
-h = 3                               # non negative int
-C = 10                             # positive float
-rank = 3                            # positive int
-constrain = '!lax'                   # lax constrain on W {'lax', #ANYTHING} using MCM / MCTM #ANYTHING for not lax
-wnorm = 'L1'                        # {'L1', 'L2'} for L1 or L2 norm using STM / SHTM
 
-visualiser = False
-visuals_folder = '/path/to/folder'  # folder path to save files to
+#The Following are the Hyper-Parameters :
+#1. sol_name : Current options are STM, SHTM, MCM, MCTM
+#2. C : positive float
+#3. rank : positive int
+#4. constrain : lax constrain on W {'lax', #ANYTHING} using MCM / MCTM #ANYTHING for not lax
+#5. wnorm : {'L1', 'L2'} for L1 or L2 norm using STM / SHTM
+#6. tree_height : positive int
+
+#wconst : {'minmax', 'maxmax', #ANYTHING} #ANYTHING for no constraint
+wconst = 'maxmax'
+#Parameters Grid in Grid Search CV :
+param_grid = {'sol_name':['STM'],'C':[0.1],'rank':[3],'constrain':['!lax'],'wnorm':['L1','L2'],'tree_height':[3],
+              'tuneC':[1e-6],'decomp':[True],'decomprank':[5]}
+
+#Visualiser to visualise images of nodes using best hyperparamters.
+visualiser = True
+#path : Folder to save all the results.
+path = 'Results'
+#verbose of grid search CV :
+gridsearch_verbose = 3
+#verbose:
+verbose_sgd = False
+verbose_solver = True
 
