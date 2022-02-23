@@ -3,9 +3,14 @@
 # TODO code up primal form of SHTM (is the 'w' on the decomposed matrices of X or on the reconstructed X after the outerproduct summation)
 # TODO SHTM is not working (error that expressions with dimensions more than 2 are not supported)
 # TODO MCTM is giving mediocre results and doesn't get better with height or C so maybe some bug
-from utils.solvers.tensor import make_kernel, rank_R_decomp, construct_W_from_mat
-from utils.solvers.vector import inner_prod, construct_W_from_vec, inner_prod_cp
-from utils.solvers.centroid import centroid
+from .tensor import make_kernel,rank_R_decomp,construct_W_from_mat
+from .vector import inner_prod,construct_W_from_vec,inner_prod_cp
+from .centroid import centroid
+from sklearn.utils import shuffle
+#from ..constants import verbose_sgd,verbose_solver
+verbose_sgd = False
+verbose_solver = False
+
 import cvxpy as cp
 import numpy as np
 from random import seed
@@ -47,7 +52,12 @@ def SHTM(X,y,C = 1.0,rank = 3,xa = None,xb = None,constrain = 'lax',wnorm = 'L1'
     problem.solve()
     
     W = construct_W_from_mat(data_fact, l.value, 1e-9)
-    
+
+    if verbose_solver:
+        tots = q.value
+        tots[tots < 1e-9] = 0
+        print(f"SHTM done, q = {np.sum(np.sign(tots))}")
+
     return W, b.value, wa.value, wb.value
 
 def STM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1',wconst = 'maxmax'):
@@ -86,6 +96,12 @@ def STM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm 
     problem.solve()
     
     W = construct_W_from_vec(w.value, wshape)
+
+    if verbose_solver:
+        tots = q.value
+        tots[tots < 1e-9] = 0
+        print(f"STM done, q = {np.sum(np.sign(tots))}")
+
     return W, b.value, wa.value, wb.value
 
 
@@ -123,7 +139,16 @@ def MCM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm 
     problem.solve()
     
     W = construct_W_from_vec(w.value, wshape)
-    
+
+    if verbose_solver:
+        tots = q.value.copy()
+        tots[tots < 1e-9] = 0
+        ## The below shows accuracy can be 100% even with value of q!=0 (just needs to be q<1)
+        # tots2 = q.value.copy()
+        # tots2[tots2<1] = 0
+        # print(f"MCM done, q = {np.sum(np.sign(tots))}, q2 = {np.sum(np.sign(tots2))}")
+        print(f"MCM done, q = {np.sum(np.sign(tots))}")
+
     return W, b.value, wa.value, wb.value
         
 
@@ -167,13 +192,82 @@ def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm
     prob = cp.Problem(cp.Minimize(obj), constraints)
     prob.solve()
     W = construct_W_from_mat(data_fact, l.value, 1e-9)
+
+    if verbose_solver:
+        tots = q.value
+        tots[tots < 1e-9] = 0
+        print(f"MCTM done, q = {np.sum(np.sign(tots))}")
+
     return W, b.value, wa.value, wb.value
 
 
 
+
+def cost_function(X, y, C, W, b, xa, xb, wa, wb, wnorm = 'L1'):
+    M = len(X)
+    cost = np.sum(np.max(1 - y*(inner_prod(W,X) + b + wa*xa + wb*xb),0),axis=-1) * C / M
+    if wnorm == 'L1':
+        cost += (np.sum(np.abs(W)) + np.abs(b) + np.abs(wa) + np.abs(wb))
+    elif wnorm == 'L2':
+        cost += 1/2*(np.sum(np.square(W)) + np.square(b) + np.square(wa) + np.square(wb))
+    return cost
+
+def derivative_cost_function(X, y, C, W, b, xa, xb, wa, wb, wnorm = 'L1'):
+    M = len(X)
+    tempy = y.copy()
+    dist = 1 - y*(inner_prod(W,X) + b + wa*xa + wb*xb)
+    tempy[dist < 0] = 0
+    if wnorm == 'L2':
+        # cost_derivative_w = np.sum(W - C*np.dot(tempy,X),axis=-1)/M
+        cost_derivative_w = np.sum(W - C*tempy*X,axis=-1)/M
+        cost_derivative_b = np.sum(b - C*tempy)/M
+        cost_derivative_wa = np.sum(wa - C*(xa*tempy))/M
+        cost_derivative_wb = np.sum(wb - C*(xb*tempy))/M
+    elif wnorm == 'L1':
+        # cost_derivative_w = np.sum(np.sign(W) - C*np.dot(tempy,X),axis=-1)/M
+        cost_derivative_w = np.sum(np.sign(W) - C*tempy*X,axis=-1)/M
+        cost_derivative_b = np.sum(np.sign(b) - C*tempy)/M
+        cost_derivative_wa = np.sum(np.sign(wa) - C*(xa*tempy))/M
+        cost_derivative_wb = np.sum(np.sign(wb) - C*(xb*tempy))/M
+    return cost_derivative_w, cost_derivative_b, cost_derivative_wa, cost_derivative_wb
+
+def SGD_STM(X, y, C = 1.0,rank = 3,xa = None,xb = None,constrain = 'lax',wnorm = 'L1',max_epoch = 2,lr = 0.2,wconst='maxmax'):
+    if verbose_solver:
+        print('Reached SGD_STM')
+    M = len(X)
+    xa = xa if xa is not None else np.zeros(M)
+    xb = xb if xb is not None else np.zeros(M)
+
+    wshape = X.shape[1:]
+    W = np.random.randn(*wshape)
+    b = 0
+    wa = np.random.randn()
+    wb = np.random.randn()
+    for epoch in range(max_epoch):
+        X,y = shuffle(X, y)
+        for i, x in enumerate(X):
+            wgrad, bgrad, wagrad, wbgrad = derivative_cost_function(x, y[i], C, W, b, xa[i], xb[i], wa, wb, wnorm)
+            W -= wgrad*lr
+            b -= bgrad*lr
+            wa -= wagrad*lr
+            wb -= wbgrad*lr
+            maxes = np.max(X, axis = 0)
+            mines = np.min(X, axis = 0)
+            if wconst == 'maxmax':
+                abmaxes = np.maximum(np.abs(maxes),np.abs(mines))
+                W = np.clip(W, -abmaxes, abmaxes)
+            elif wconst == 'minmax':
+                W = np.clip(W, -mines, maxes)
+        if verbose_sgd == True:
+            print(f"Epoch number {epoch+1} is done")
+    return W, b, wa, wb
+
+
 def getHyperPlaneFromTwoPoints(xp, xn):
+    if verbose_solver:
+        print('Reached centroid')
     x1 = centroid(xp)
     x2 = centroid(xn)
     w = (2) * (x2 - x1) / (np.linalg.norm(x1 - x2) ** 2)
-    b = -1 * inner_prod(w,(0.5 * (x1 + x2)))  
+    b = -1 * inner_prod(w,(0.5 * (x1 + x2)))
     return -w, -b
