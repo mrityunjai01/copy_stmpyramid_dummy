@@ -1,6 +1,5 @@
-import utils.solvers.solvers as solvers
-import utils.loader as load
-from utils.crossval import grid_search_cv
+import loader as load
+from crossval import grid_search_cv
 from constants import *
 import numpy as np
 from random import seed
@@ -24,9 +23,6 @@ if __name__ == "__main__":
     if len(Xtrain.shape) == 2:
         Xtrain = Xtrain.reshape((Xtrain.shape[0],Xtrain.shape[1],1))
     grid_search_cv(Xtrain,ytrain)
-
-
-
 
 
 
