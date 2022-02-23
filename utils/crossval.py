@@ -1,16 +1,16 @@
-from model import Node
+from utils.model import Node
 import numpy as np
-from accuracy import accuracy
+from utils.accuracy import accuracy
 from random import seed
 from sklearn.base import ClassifierMixin
 from sklearn.model_selection import GridSearchCV
 import joblib
 import os
-from visualiser import visualise, visualise_neg, visualise_pos
+from utils.visualiser import visualise, visualise_neg, visualise_pos
 from constants import *
 import pickle
 import matplotlib.pyplot as plt
-from solvers.tensor import data_decomp
+from utils.solvers.tensor import data_decomp
 np.random.seed(1)
 seed(1)
 
