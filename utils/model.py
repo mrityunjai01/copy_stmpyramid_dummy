@@ -1,12 +1,12 @@
-from solvers.vector import inner_prod
-from solvers.solvers import getHyperPlaneFromTwoPoints
-from accuracy import accuracy as accuracy_
-from solvers.tensor import construct_W_from_decomp
+from utils.solvers.vector import inner_prod
+from utils.solvers.solvers import getHyperPlaneFromTwoPoints
+from utils.accuracy import accuracy as accuracy_
+from utils.solvers.tensor import construct_W_from_decomp
 
 import numpy as np
 from random import seed
 import os
-import solvers.solvers as solvers
+import utils.solvers.solvers as solvers
 import pickle
 np.random.seed(1)
 seed(1)
@@ -54,8 +54,8 @@ class Node:
         self.decomp = decomp
         self.decomprank = decomprank
         self.ogXtrainshape = ogXtrainshape
-        
-    def insert(self,neuron_type, weight=0, bias=0, w=0):     
+
+    def insert(self,neuron_type, weight=0, bias=0, w=0):
         if neuron_type == 'A':
             self.A = Node(indim=self.dim,sol_name=self.sol_name,C=self.C,rank=self.rank,wconst=self.wconst,
                           xa=self.xa,xb=self.xb,constrain=self.constrain,wnorm=self.wnorm,
@@ -74,13 +74,13 @@ class Node:
             self.B.bias = bias
             self.B.height = self.height+1
         return self.B
-    
+
     def update_weights_and_bias(self,weight,bias,wA = 0,wB = 0):
         self.weight = weight
         self.bias = bias
         self.wA = wA
         self.wB = wB
-        
+
     def update_classes(self,ypred,ytrue):
         ypred=ypred.copy()
         ypred=np.reshape(ypred,(ypred.shape[0],1))
@@ -89,17 +89,17 @@ class Node:
         self.C2 = np.argwhere(yf==-3)[:,0] #-1,-1
         self.C3 = np.where(yf==1)[0]   #1,-1
         self.C4 = np.where(yf==-1)[0] #-1,1
-        
+
     def forward(self, X):
         y=[]
         X=X.copy()
-        w = self.weight 
+        w = self.weight
         b = self.bias
         wA = np.asarray([self.wA]).copy()
         wB=np.asarray([self.wB]).copy()
 
         if(self==None):
-            return [] 
+            return []
         if(self.A==None and self.B==None):
             y = np.sign(np.array(inner_prod(w, X))+np.array(b)).reshape(-1,1)
         if(self.A==None):
@@ -108,7 +108,7 @@ class Node:
             xA = self.A.forward(X)
             xA=np.reshape(xA,(xA.shape[0],1))
         if(self.B==None):
-            xB = np.zeros((X.shape[0],1)) 
+            xB = np.zeros((X.shape[0],1))
         else:
             xB = self.B.forward(X)
             xB=np.reshape(xB,(xB.shape[0],1))
@@ -123,18 +123,18 @@ class Node:
             wB = np.asarray([wB.item()])
             y = np.sign(np.asarray(inner_prod(w, X))+np.asarray(inner_prod(wB, xB))+np.asarray(b)).reshape(-1,1)
         return y
-    
+
     def accuracy(self, xtrain, ytrain):
         return accuracy_(self.forward(xtrain),ytrain)
-    
-    
+
+
     def fine_tune_weights(self):
         l=self.labels.copy()
         X = self.X.copy()
         xA = np.zeros(X.shape[0])
         xB = np.zeros(X.shape[0])
         if(self==None):
-            return   
+            return
         if(self.A!=None):
             self.A.fine_tune_weights()
             xA = self.A.forward(X)
@@ -150,7 +150,7 @@ class Node:
         weight, bias, wA, wB = self.solver(X=X,y=l,C=self.tuneC,rank=self.rank,xa=xA,xb=xB,
                                            constrain=self.constrain,wnorm=self.wnorm,wconst=self.wconst,
                                            margin='hard')
-        
+
         self.update_weights_and_bias(weight, bias, wA, wB)
 
 
@@ -176,13 +176,13 @@ class Node:
             return
         if(len(C1)==0 or len(C2)==0):
             if(len(C1)!=0):
-                X_positive=np.take(X,np.hstack((C1,C4)),axis=0) 
+                X_positive=np.take(X,np.hstack((C1,C4)),axis=0)
                 X_negative=np.take(X,np.hstack((C3)),axis=0)
             elif(len(C2)!=0):
-                X_positive=np.take(X,np.hstack((C4)),axis=0)  
+                X_positive=np.take(X,np.hstack((C4)),axis=0)
                 X_negative=np.take(X,np.hstack((C2,C3)),axis=0)
             else:
-                X_positive=np.take(X,np.hstack((C4)),axis=0)  
+                X_positive=np.take(X,np.hstack((C4)),axis=0)
                 X_negative=np.take(X,np.hstack((C3)),axis=0)
             weight, bias = getHyperPlaneFromTwoPoints(X_positive, X_negative)
             self.update_weights_and_bias(weight, bias)
