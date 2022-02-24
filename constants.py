@@ -3,8 +3,8 @@ dataset = 'mnist'                  # {mnist, cifar10, custom}
 
 # For mnist 
 if dataset == 'mnist':
-    class1 = 3                       # {0,1,2,3,4,5,6,7,8,9}
-    class2 = 8                       # {0,1,2,3,4,5,6,7,8,9}
+    class1 = [0,1,4,5,7,9]                       # {0,1,2,3,4,5,6,7,8,9}
+    class2 = [2,3,6,8]                  # {0,1,2,3,4,5,6,7,8,9}
     totalsamp = 2000                 # int within [50,60000] or None (for max)
 
 # For cifar10
@@ -30,8 +30,8 @@ normalised = False                  # normalised data? {True, False}
 #wconst : {'minmax', 'maxmax', #ANYTHING} #ANYTHING for no constraint
 wconst = 'maxmax'
 #Parameters Grid in Grid Search CV :
-param_grid = {'sol_name':['STM'],'C':[0.1],'rank':[3],'constrain':['!lax'],'wnorm':['L1','L2'],'tree_height':[3],
-              'tuneC':[1e-6],'decomp':[True],'decomprank':[5]}
+param_grid = {'sol_name':['STM'],'C':[0.01],'rank':[3],'constrain':['!lax'],'wnorm':['L1'],'tree_height':[3],
+              'tuneC':[0],'decomp':[False],'decomprank':[5]}
 
 #Visualiser to visualise images of nodes using best hyperparamters.
 visualiser = True
@@ -42,4 +42,6 @@ gridsearch_verbose = 3
 #verbose:
 verbose_sgd = False
 verbose_solver = True
+#Grid Search CV:
+cv = 5
 
