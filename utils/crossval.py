@@ -1,16 +1,16 @@
-from utils.model import Node
+from model import Node
 import numpy as np
-from utils.accuracy import accuracy
+from accuracy import accuracy
 from random import seed
 from sklearn.base import ClassifierMixin
 from sklearn.model_selection import GridSearchCV
 import joblib
 import os
-from utils.visualiser import visualise, visualise_neg, visualise_pos
+from visualiser import visualise, visualise_neg, visualise_pos
 from constants import *
 import pickle
 import matplotlib.pyplot as plt
-from utils.solvers.tensor import data_decomp
+from solvers.tensor import data_decomp
 np.random.seed(1)
 seed(1)
 
@@ -65,7 +65,7 @@ class model_cv(ClassifierMixin):
 
 def grid_search_cv(Xtrain,ytrain):
     model = model_cv(indim=Xtrain.shape[1:],path=path,wconst=wconst)
-    grid = GridSearchCV(estimator=model,param_grid=param_grid,n_jobs=-1,verbose=gridsearch_verbose,error_score='raise')
+    grid = GridSearchCV(estimator=model,param_grid=param_grid,n_jobs=-1,verbose=gridsearch_verbose,error_score='raise',cv=cv)
     grid.fit(Xtrain,ytrain)
     best_param = grid.best_params_
     test_acc = grid.best_score_
@@ -126,7 +126,6 @@ def grid_search_cv(Xtrain,ytrain):
             plt.imsave(s1,w1,cmap='gray',dpi=100)
             plt.imsave(s2,w2,cmap='gray',dpi=100)
             plt.imsave(s3,w3,cmap='gray',dpi=100)
-
 
 
 
