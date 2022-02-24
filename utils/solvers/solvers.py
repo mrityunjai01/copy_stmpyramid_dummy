@@ -3,19 +3,23 @@
 # TODO code up primal form of SHTM (is the 'w' on the decomposed matrices of X or on the reconstructed X after the outerproduct summation)
 # TODO SHTM is not working (error that expressions with dimensions more than 2 are not supported)
 # TODO MCTM is giving mediocre results and doesn't get better with height or C so maybe some bug
-from utils.solvers.tensor import make_kernel,rank_R_decomp,construct_W_from_mat
-from utils.solvers.vector import inner_prod,construct_W_from_vec,inner_prod_cp
-from utils.solvers.centroid import centroid
+from .tensor import make_kernel,rank_R_decomp,construct_W_from_mat
+from .vector import inner_prod,construct_W_from_vec,inner_prod_cp
+from .centroid import centroid
 from sklearn.utils import shuffle
-from constants import verbose_sgd,verbose_solver
+#from ..constants import verbose_sgd,verbose_solver
+verbose_sgd = False
+verbose_solver = False
 
 import cvxpy as cp
 import numpy as np
 from random import seed
 np.random.seed(1)
 seed(1)
+import warnings
+warnings.filterwarnings("ignore")
 
-def SHTM(X,y,C = 1.0,rank = 3,xa = None,xb = None,constrain = 'lax',wnorm = 'L1',wconst='maxmax'):
+def SHTM(X,y,C = 1.0,rank = 3,xa = None,xb = None,constrain = 'lax',wnorm = 'L1',wconst='maxmax',margin='soft'):
     M = len(X)
     xa = xa if xa is not None else np.zeros(M)
     xb = xb if xb is not None else np.zeros(M)
@@ -58,26 +62,27 @@ def SHTM(X,y,C = 1.0,rank = 3,xa = None,xb = None,constrain = 'lax',wnorm = 'L1'
 
     return W, b.value, wa.value, wb.value
 
-def STM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1',wconst = 'maxmax'):
+def STM(X,y,C = 1.0,rank = 3,xa = None, xb = None,constrain = 'lax',wnorm = 'L1',wconst = 'maxmax',margin='soft'):
     M = len(X)
     xa = xa if xa is not None else np.zeros(M)
     xb = xb if xb is not None else np.zeros(M)
-    
     wshape = X.shape[1:]
-    
     w = cp.Variable(len(X[0].reshape(-1)))
     b = cp.Variable()
     wa = cp.Variable()
     wb = cp.Variable()
     q = cp.Variable(M)
-    objfun = C*cp.sum(q)
+    if(margin == 'soft'):
+        objfun = C*cp.sum(q)
+    else:
+        objfun = 0
     if wnorm == 'L1':
-        objfun += cp.sum(cp.abs(w)) + cp.abs(wa) + cp.abs(wb)
+        objfun += cp.sum(cp.abs(w))+cp.abs(wa)+cp.abs(wb)
     elif wnorm == 'L2':
-        objfun += 1/2*(cp.sum(cp.square(w)) + cp.square(wa) + cp.square(wb))
+        objfun += 1/2*(cp.sum(cp.square(w))+cp.square(wa)+cp.square(wb))
     constraints = []
-    maxes = np.max(X, axis = 0).reshape(-1)
-    mines = np.min(X, axis = 0).reshape(-1)
+    maxes = np.max(X,axis = 0).reshape(-1)
+    mines = np.min(X,axis = 0).reshape(-1)
     if wconst == 'maxmax':
         abmaxes = np.maximum(np.abs(maxes),np.abs(mines))
         constraints.append(w <= abmaxes)
@@ -87,23 +92,24 @@ def STM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm 
         constraints.append(w >= mines)
     constraints.append(q >= 0)
     for i in range(M):
-        constraints.append(y[i]*(inner_prod_cp(w,X[i].reshape(-1)) + b + cp.multiply(wa,xa[i]) + cp.multiply(wb,xb[i])) + q[i] >= 1.0)
+        if(margin == 'soft'):
+            constraints.append((y[i]*(inner_prod_cp(w,X[i].reshape(-1))+b+cp.multiply(wa,xa[i])+cp.multiply(wb,xb[i]))+q[i]) >= 1.0)
+        else:
+            constraints.append((y[i]*(inner_prod_cp(w,X[i].reshape(-1))+b+cp.multiply(wa,xa[i])+cp.multiply(wb,xb[i]))) >= 1.0)
     constraints.append(wa >= 0)
     constraints.append(wb <= 0)
     problem = cp.Problem(cp.Minimize(objfun),constraints)
     problem.solve()
-    
     W = construct_W_from_vec(w.value, wshape)
-
     if verbose_solver:
         tots = q.value
         tots[tots < 1e-9] = 0
         print(f"STM done, q = {np.sum(np.sign(tots))}")
 
-    return W, b.value, wa.value, wb.value
+    return W,b.value,wa.value,wb.value
 
 
-def MCM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1',wconst = 'maxmax'):
+def MCM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1',wconst = 'maxmax',margin='soft'):
     M = len(X)
     xa = xa if xa is not None else np.zeros(M)
     xb = xb if xb is not None else np.zeros(M)
@@ -153,7 +159,7 @@ def MCM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm 
 
 
 
-def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1',wconst = 'maxmax'):
+def MCTM(X, y, C = 1.0, rank = 3, xa = None, xb = None, constrain = 'lax', wnorm = 'L1',wconst = 'maxmax',margin='soft'):
     '''
     If solver doesn't work, then hyperparameters chosen are faulty.
     '''
@@ -229,7 +235,8 @@ def derivative_cost_function(X, y, C, W, b, xa, xb, wa, wb, wnorm = 'L1'):
         cost_derivative_wb = np.sum(np.sign(wb) - C*(xb*tempy))/M
     return cost_derivative_w, cost_derivative_b, cost_derivative_wa, cost_derivative_wb
 
-def SGD_STM(X, y, C = 1.0,rank = 3,xa = None,xb = None,constrain = 'lax',wnorm = 'L1',max_epoch = 2,lr = 0.2,wconst='maxmax'):
+def SGD_STM(X, y, C = 1.0,rank = 3,xa = None,xb = None,constrain = 'lax',wnorm = 'L1',max_epoch = 2,lr = 0.2,wconst='maxmax',
+            margin='soft'):
     if verbose_solver:
         print('Reached SGD_STM')
     M = len(X)
