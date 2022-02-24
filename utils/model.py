@@ -1,12 +1,12 @@
-from utils.solvers.vector import inner_prod
-from utils.solvers.solvers import getHyperPlaneFromTwoPoints
-from utils.accuracy import accuracy as accuracy_
-from utils.solvers.tensor import construct_W_from_decomp
+from solvers.vector import inner_prod
+from solvers.solvers import getHyperPlaneFromTwoPoints
+from accuracy import accuracy as accuracy_
+from solvers.tensor import construct_W_from_decomp
 
 import numpy as np
 from random import seed
 import os
-import utils.solvers.solvers as solvers
+import solvers.solvers as solvers
 import pickle
 np.random.seed(1)
 seed(1)
@@ -83,7 +83,7 @@ class Node:
         
     def update_classes(self,ypred,ytrue):
         ypred=ypred.copy()
-        ypred=np.reshape(ypred,(ypred.shape[0],1))    
+        ypred=np.reshape(ypred,(ypred.shape[0],1))
         yf  = np.add(2*ypred, ytrue)
         self.C1 = np.argwhere(yf==3)[:,0] #1,1              #In order: predicted, true
         self.C2 = np.argwhere(yf==-3)[:,0] #-1,-1
@@ -131,21 +131,25 @@ class Node:
     def fine_tune_weights(self):
         l=self.labels.copy()
         X = self.X.copy()
-        xA = np.zeros((X.shape[0],1))
-        xB = np.zeros((X.shape[0],1))
+        xA = np.zeros(X.shape[0])
+        xB = np.zeros(X.shape[0])
         if(self==None):
             return   
         if(self.A!=None):
             self.A.fine_tune_weights()
             xA = self.A.forward(X)
-            xA=np.reshape(xA,(xA.shape[0],1))
+            xA = xA[:,0]
+            xA = np.where(xA <= 0,0,1)
+
         if(self.B!=None):
             self.B.fine_tune_weights()
             xB = self.B.forward(X)
-            xB=np.reshape(xB,(xB.shape[0],1))
-        
-        weight, bias, wA, wB = self.solver(X=X,y=l,C=self.tuneC,rank=self.rank,xa=self.xa,xb=self.xb,
-                                           constrain=self.constrain,wnorm=self.wnorm,wconst=self.wconst)
+            xB = xB[:,0]
+            xB = np.where(xB <= 0,0,1)
+
+        weight, bias, wA, wB = self.solver(X=X,y=l,C=self.tuneC,rank=self.rank,xa=xA,xb=xB,
+                                           constrain=self.constrain,wnorm=self.wnorm,wconst=self.wconst,
+                                           margin='hard')
         
         self.update_weights_and_bias(weight, bias, wA, wB)
 
@@ -157,7 +161,8 @@ class Node:
         labels=labels.copy()
         X=X.copy()
         weight, bias, _, _1_ = self.solver(X=X,y=labels,C=self.C,rank=self.rank,xa=self.xa,xb=self.xb,
-                                           constrain=self.constrain,wnorm=self.wnorm,wconst=self.wconst)
+                                           constrain=self.constrain,wnorm=self.wnorm,wconst=self.wconst,
+                                           margin='soft')
         self.update_weights_and_bias(weight, bias)
         ypred=self.forward(X)
         self.update_classes(ypred,labels)
