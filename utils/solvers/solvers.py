@@ -99,6 +99,7 @@ def STM(X,y,C = 1.0,rank = 3,xa = None, xb = None,constrain = 'lax',wnorm = 'L1'
     problem = cp.Problem(cp.Minimize(objfun),constraints)
     problem.solve()
     W = construct_W_from_vec(w.value, wshape)
+    print(verbose_solver)
     if verbose_solver:
         tots = q.value
         tots[tots < 1e-9] = 0
