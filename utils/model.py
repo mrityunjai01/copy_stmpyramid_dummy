@@ -149,7 +149,7 @@ class Node:
 
         weight, bias, wA, wB = self.solver(X=X,y=l,C=self.tuneC,rank=self.rank,xa=xA,xb=xB,
                                            constrain=self.constrain,wnorm=self.wnorm,wconst=self.wconst,
-                                           margin='hard')
+                                           margin='soft')
         
         self.update_weights_and_bias(weight, bias, wA, wB)
 
