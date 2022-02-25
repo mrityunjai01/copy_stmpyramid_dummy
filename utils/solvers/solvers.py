@@ -3,13 +3,11 @@
 # TODO code up primal form of SHTM (is the 'w' on the decomposed matrices of X or on the reconstructed X after the outerproduct summation)
 # TODO SHTM is not working (error that expressions with dimensions more than 2 are not supported)
 # TODO MCTM is giving mediocre results and doesn't get better with height or C so maybe some bug
-from .tensor import make_kernel,rank_R_decomp,construct_W_from_mat
-from .vector import inner_prod,construct_W_from_vec,inner_prod_cp
-from .centroid import centroid
+from utils.solvers.tensor import make_kernel,rank_R_decomp,construct_W_from_mat
+from utils.solvers.vector import inner_prod,construct_W_from_vec,inner_prod_cp
+from utils.solvers.centroid import centroid
+from constants import verbose_sgd,verbose_solver
 from sklearn.utils import shuffle
-#from ..constants import verbose_sgd,verbose_solver
-verbose_sgd = False
-verbose_solver = False
 
 import cvxpy as cp
 import numpy as np
