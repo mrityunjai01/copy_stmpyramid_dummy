@@ -31,7 +31,7 @@ normalised = False                  # normalised data? {True, False}
 wconst = 'maxmax'
 #Parameters Grid in Grid Search CV :
 param_grid = {'sol_name':['STM'],'C':[0.01],'rank':[3],'constrain':['!lax'],'wnorm':['L1'],'tree_height':[3],
-              'tuneC':[0],'decomp':[False],'decomprank':[5]}
+              'tuneC':[1],'decomp':[False],'decomprank':[5]}
 
 #Visualiser to visualise images of nodes using best hyperparamters.
 visualiser = True
