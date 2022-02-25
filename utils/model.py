@@ -6,7 +6,7 @@ from utils.solvers.tensor import construct_W_from_decomp
 import numpy as np
 from random import seed
 import os
-import solvers.solvers as solvers
+import utils.solvers.solvers as solvers
 import pickle
 np.random.seed(1)
 seed(1)
