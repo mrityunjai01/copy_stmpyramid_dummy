@@ -41,7 +41,7 @@ path = 'Results'
 gridsearch_verbose = 3
 #verbose:
 verbose_sgd = False
-verbose_solver = True
+verbose_solver = False
 #Grid Search CV:
 cv = 5
 
