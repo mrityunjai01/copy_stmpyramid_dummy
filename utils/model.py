@@ -157,6 +157,8 @@ class Node:
 
         X = X[mask]
         l = l[mask]
+        xA = xA[mask]
+        xB = xB[mask]
         weight, bias, wA, wB = self.solver(X=X,y=l,C=self.tuneC,rank=self.rank,xa=xA,xb=xB,
                                            constrain=self.constrain,wnorm=self.wnorm,wconst=self.wconst,
                                            margin='hard')
