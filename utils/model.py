@@ -218,6 +218,7 @@ class Node:
 
         if(len(C4) != 0):
             X_new=np.take(X,np.hstack((C2,C3,C4)),axis=0)
+            labels[C1]=0
             labels[C2]=-1
             labels[C3]=-1
             labels[C4]=1
