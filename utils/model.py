@@ -154,7 +154,13 @@ class Node:
             mask1 = (xB1>=0).reshape(-1)
             mask = mask&mask1
             xB = xB[:,0]
-
+        
+        if((self.A == None) & (self.B == None)):
+            xs = self.forward(X)
+            x1 = np.multiply(xs,l)
+            mask1 = (x1 >= 0).reshape(-1)
+            mask = mask & mask1
+            
         X = X[mask]
         l = l[mask]
         xA = xA[mask]
