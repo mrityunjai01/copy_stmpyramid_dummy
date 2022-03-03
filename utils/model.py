@@ -212,7 +212,7 @@ class Node:
             labels[C3]=1
             labels[C4]=-1
             y_new=np.take(labels,np.hstack((C1,C3,C4)),axis=0)
-            self.xat = np.take(labels,np.hstack((C1,C2,C3,C4)),axis=0)
+            self.xat = labels
             NodeA = self.insert('A')
             NodeA.recursive(X_new,y_new)
 
@@ -223,7 +223,7 @@ class Node:
             labels[C3]=-1
             labels[C4]=1
             y_new=np.take(labels,np.hstack((C2,C3,C4)),axis=0)
-            self.xbt = np.take(labels,np.hstack((C1,C2,C3,C4)),axis=0)
+            self.xbt = labels
             NodeB = self.insert('B')
             NodeB.recursive(X_new,y_new)
 
