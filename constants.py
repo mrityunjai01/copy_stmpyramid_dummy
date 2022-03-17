@@ -1,18 +1,18 @@
 
 # TODO make a way to save output data rather than print it out (especially for images)
-dataset = 'mnist'                  # {mnist, cifar10, custom}
+dataset = 'cifar10'                  # {mnist, cifar10, custom}
 
 # For mnist 
 if dataset == 'mnist':
-    class1 = [3]                       # {0,1,2,3,4,5,6,7,8,9}
-    class2 = [8]                  # {0,1,2,3,4,5,6,7,8,9}
-    totalsamp = 2000                    # int within [50,60000] or None (for max)
+    class1 = 1                           # {0,1,2,3,4,5,6,7,8,9}
+    class2 = 9                           # {0,1,2,3,4,5,6,7,8,9}
+    totalsamp = 10000                    # int within [50,60000] or None (for max)
 
 # For cifar10
 if dataset == 'cifar10':
     class1 = 3                      # {0,1,2,3,4,5,6,7,8,9}
     class2 = 8                      # {0,1,2,3,4,5,6,7,8,9}
-    totalsamp = 3000                # int within [50,10000] or None (for max)
+    totalsamp = 1000                 # int within [50,10000] or None (for max)
 
 
 # For custom
