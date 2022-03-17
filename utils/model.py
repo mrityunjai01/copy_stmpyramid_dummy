@@ -145,7 +145,6 @@ class Node:
             mask1 = (xA1 >= 0).reshape(-1)
             mask = mask & mask1
             xA = xA[:,0]
-            #xA = np.where(xA==0,1,xA)
 
         if (self.B != None):
             self.B.fine_tune_weights()
@@ -154,7 +153,6 @@ class Node:
             mask1 = (xB1 >= 0).reshape(-1)
             mask = mask & mask1
             xB = xB[:,0]
-            #xB = np.where(xB==0,1,xB)
 
         if((self.A == None) & (self.B == None)):
             xs = self.forward(X)
