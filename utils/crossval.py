@@ -65,7 +65,7 @@ class model_cv(ClassifierMixin):
 
 def grid_search_cv(Xtrain,ytrain):
     model = model_cv(indim=Xtrain.shape[1:],path=path,wconst=wconst)
-    grid = GridSearchCV(estimator=model,param_grid=param_grid,n_jobs=-1,verbose=gridsearch_verbose,error_score='raise')
+    grid = GridSearchCV(estimator=model,param_grid=param_grid,n_jobs=-1,verbose=gridsearch_verbose,error_score='raise',cv=cv)
     grid.fit(Xtrain,ytrain)
     best_param = grid.best_params_
     test_acc = grid.best_score_
