@@ -1,4 +1,3 @@
-
 # TODO make a way to save output data rather than print it out (especially for images)
 dataset = 'cifar10'                  # {mnist, cifar10, custom}
 
